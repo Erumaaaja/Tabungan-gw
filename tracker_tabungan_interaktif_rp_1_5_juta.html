@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Tabungan Rp 1.500.000 - Tracker Interaktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti untuk efek perayaan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        crimson: {
+                            50: '#FFF1F3',
+                            100: '#FFE4E8',
+                            500: '#DC143C',
+                            600: '#B91032',
+                            700: '#990D29',
+                        },
+                        emerald: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Kustomisasi Scrollbar & Animasi Halus */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .progress-bar-fill {
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Hilangkan panah default pada input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 28px rgba(16, 185, 129, 0.6); }
+        }
+        .celebration-glow {
+            animation: pulseGlow 2.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Navbar / Header -->
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                    <!-- Icon Celengan / Wallet SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>
+                        <path d="M2 9v1c0 1.1.9 2 2 2h1"/>
+                        <path d="M16 11h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg tracking-tight leading-tight">Target 1,5 Juta</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Tracker Menabung Harian</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Tombol Toggle Dark/Light Mode -->
+                <button id="themeToggleBtn" aria-label="Ubah Tema" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+                    <!-- Sun Icon (Dark Mode) -->
+                    <svg id="sunIcon" class="w-5 h-5 hidden dark:block text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Moon Icon (Light Mode) -->
+                    <svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <!-- Tombol Reset Data -->
+                <button id="openResetModalBtn" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-crimson-50 hover:bg-crimson-100 text-crimson-500 dark:bg-crimson-500/10 dark:hover:bg-crimson-500/20 border border-crimson-500/20 transition-all flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                    <span>Reset Data</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+
+        <!-- Banner Perayaan (Tampil otomatis saat >= Rp 1.500.000) -->
+        <div id="celebrationBanner" class="hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 p-5 sm:p-6 text-white shadow-lg celebration-glow relative overflow-hidden">
+            <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                        <span>🎉 TARGET TERCAPAI!</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">Selamat! Tabunganmu Tembus Rp 1.500.000!</h2>
+                    <p class="text-emerald-50 text-sm">Konsistensimu luar biasa! Kamu tetap bisa terus menabung untuk menambah ekstra saldo.</p>
+                </div>
+                <button onclick="triggerConfettiBurst()" class="shrink-0 px-4 py-2.5 bg-white text-emerald-700 hover:bg-emerald-50 font-semibold text-sm rounded-xl shadow transition transform active:scale-95">
+                    🎊 Rayakan Lagi
+                </button>
+            </div>
+        </div>
+
+        <!-- 1. RINGKASAN UTAMA & PROGRESS BAR -->
+        <section id="summaryCard" class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-7 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
+                <!-- Card Target -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <span class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Target Tabungan</span>
+                    <div class="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white" id="targetAmountDisplay">
+                        Rp 1.500.000
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Target utama yang ingin dicapai</p>
+                </div>
+
+                <!-- Card Terkumpul -->
+                <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50">
+                    <span class="text-xs font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Total Terkumpul</span>
+                    <div class="mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400" id="totalSavedDisplay">
+                        Rp 0
+                    </div>
+                    <p class="mt-1 text-xs text-emerald-700/80 dark:text-emerald-400/80" id="totalDepositsCount">Dari 0 kali setoran</p>
+                </div>
+
+                <!-- Card Sisa Target -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <span class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Sisa Target</span>
+                    <div class="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white" id="remainingAmountDisplay">
+                        Rp 1.500.000
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400" id="remainingStatusText">Ayo mulai setoran pertamamu!</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar Visual -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-sm font-semibold">
+                    <span class="text-slate-600 dark:text-slate-300">Progres Pencapaian</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold text-base" id="percentageDisplay">0%</span>
+                </div>
+                <div class="w-full h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-1 border border-slate-200/60 dark:border-slate-700/60">
+                    <div id="progressBarFill" class="progress-bar-fill h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 relative" style="width: 0%;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GRID 2 KOLOM: FORM INPUT & STATISTIK PINTAR -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- 2. FORM INPUT HARIAN FLEKSIBEL (7 Kolom) -->
+            <section class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="w-2 h-6 rounded-full bg-emerald-500 inline-block"></span>
+                        Catat Setoran Tabungan
+                    </h2>
+                </div>
+
+                <form id="savingForm" class="space-y-4">
+                    <!-- Input Nominal -->
+                    <div>
+                        <label for="amountInput" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            Nominal Setoran (Rp) <span class="text-crimson-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-semibold select-none">Rp</span>
+                            <input 
+                                type="text" 
+                                inputmode="numeric"
+                                id="amountInput" 
+                                placeholder="0" 
+                                required
+                                autocomplete="off"
+                                class="w-full pl-11 pr-4 py-3 text-lg font-bold rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                            >
+                        </div>
+
+                        <!-- Tombol Cepat Nominal -->
+                        <div class="mt-2.5">
+                            <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1.5">Tambah cepat nominal:</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button type="button" onclick="addQuickAmount(5000)" class="py-2 px-2.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 transition active:scale-95">
+                                    +Rp 5.000
+                                </button>
+                                <button type="button" onclick="addQuickAmount(10000)" class="py-2 px-2.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 transition active:scale-95">
+                                    +Rp 10.000
+                                </button>
+                                <button type="button" onclick="addQuickAmount(20000)" class="py-2 px-2.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 transition active:scale-95">
+                                    +Rp 20.000
+                                </button>
+                                <button type="button" onclick="addQuickAmount(50000)" class="py-2 px-2.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 transition active:scale-95">
+                                    +Rp 50.000
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grid Tanggal & Catatan -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dateInput" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                Tanggal Setoran
+                            </label>
+                            <input 
+                                type="date" 
+                                id="dateInput" 
+                                required
+                                class="w-full px-3.5 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="noteInput" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                Catatan <span class="text-slate-400 font-normal">(Opsional)</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="noteInput" 
+                                placeholder="Misal: Sisa uang jajan" 
+                                maxlength="60"
+                                class="w-full px-3.5 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Tombol Submit -->
+                    <button 
+                        type="submit" 
+                        class="w-full py-3.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base shadow-md shadow-emerald-600/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Simpan ke Tabungan</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- 4. STATISTIK & ESTIMASI PINTAR (5 Kolom) -->
+            <section class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+                        <span class="w-2 h-6 rounded-full bg-teal-500 inline-block"></span>
+                        Statistik & Estimasi Pintar
+                    </h2>
+
+                    <div class="space-y-3.5">
+                        <!-- Rata-rata per hari menabung -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Rata-rata Setoran / Hari Aktif</p>
+                                <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white" id="avgPerDayDisplay">Rp 0</p>
+                            </div>
+                        </div>
+
+                        <!-- Estimasi Hari Tercapai -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Perkiraan Target Tercapai</p>
+                                <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white" id="estimatedDaysDisplay">Belum ada data</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="estimatedDateDisplay">-</p>
+                            </div>
+                        </div>
+
+                        <!-- Setoran Tertinggi -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Setoran Terbesar</p>
+                                <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white" id="highestDepositDisplay">Rp 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Motivasi Dinamis -->
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 italic" id="motivationTip">
+                        💡 Tips: Menabung Rp 25.000 setiap hari akan mencapai Rp 1.500.000 dalam 60 hari!
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <!-- 5. RIWAYAT TRANSAKSI HARIAN -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="w-2 h-6 rounded-full bg-emerald-500 inline-block"></span>
+                        Riwayat Setoran Tabungan
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tersimpan otomatis di perangkat Anda</p>
+                </div>
+                <span id="historyBadgeCount" class="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    0 Transaksi
+                </span>
+            </div>
+
+            <!-- State Kosong -->
+            <div id="emptyHistoryState" class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Belum ada catatan tabungan</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">Mulai masukkan nominal tabungan pertamamu pada formulir di atas.</p>
+            </div>
+
+            <!-- Tabel Riwayat Responsif -->
+            <div id="historyTableWrapper" class="hidden overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            <th class="py-3.5 px-4">Tanggal</th>
+                            <th class="py-3.5 px-4">Catatan</th>
+                            <th class="py-3.5 px-4 text-right">Nominal</th>
+                            <th class="py-3.5 px-4 text-center w-20">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                        <!-- Baris transaksi akan dirender di sini via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+        Tracker Tabungan Rp 1.500.000 &bull; Data disimpan secara lokal di browser Anda.
+    </footer>
+
+    <!-- CUSTOM MODAL KONFIRMASI RESET DATA (Pengganti confirm() bawaan browser) -->
+    <div id="resetModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl transform transition-all">
+            <div class="w-12 h-12 rounded-full bg-crimson-50 dark:bg-crimson-500/15 text-crimson-500 flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reset Semua Data Tabungan?</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                Tindakan ini akan menghapus seluruh riwayat setoran dan mengembalikan progres tabungan Anda menjadi <strong class="text-slate-700 dark:text-slate-200">Rp 0</strong>. Data yang dihapus tidak dapat dikembalikan.
+            </p>
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button id="cancelResetBtn" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                    Batal
+                </button>
+                <button id="confirmResetBtn" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-crimson-500 hover:bg-crimson-600 text-white shadow-md shadow-crimson-500/20 transition">
+                    Ya, Hapus Semua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION (Pengganti alert()) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- SCRIPT APLIKASI -->
+    <script>
+        // Konstanta Utama
+        const TARGET_AMOUNT = 1500000;
+        const STORAGE_KEY = 'savings_tracker_1500k_data_v1';
+        const THEME_KEY = 'savings_tracker_theme_v1';
+
+        // State Aplikasi
+        let transactions = [];
+        let wasTargetReachedPreviously = false;
+
+        // Referensi Elemen DOM
+        const amountInput = document.getElementById('amountInput');
+        const dateInput = document.getElementById('dateInput');
+        const noteInput = document.getElementById('noteInput');
+        const savingForm = document.getElementById('savingForm');
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            setDefaultDateToday();
+            loadDataFromStorage();
+            
+            // Cek status awal target tercapai agar tidak langsung confetti saat reload jika sudah tercapai sebelumnya
+            const initialTotal = calculateTotalSaved();
+            wasTargetReachedPreviously = initialTotal >= TARGET_AMOUNT;
+            
+            renderApp(false);
+        });
+
+        // --- 1. MANAJEMEN TEMA (DARK / LIGHT MODE) ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        document.getElementById('themeToggleBtn').addEventListener('click', () => {
+            const htmlEl = document.documentElement;
+            htmlEl.classList.toggle('dark');
+            const isDark = htmlEl.classList.contains('dark');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        });
+
+        // --- 2. FORMATTER RUPIAH & TANGGAL ---
+        function formatRupiah(number) {
+            return 'Rp ' + Math.round(number).toLocaleString('id-ID');
+        }
+
+        function parseRawNumber(str) {
+            const cleaned = String(str).replace(/[^0-9]/g, '');
+            return cleaned ? parseInt(cleaned, 10) : 0;
+        }
+
+        function setDefaultDateToday() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
+
+        function formatDateIndonesian(dateStr) {
+            if (!dateStr) return '-';
+            const [year, month, day] = dateStr.split('-');
+            const dateObj = new Date(year, month - 1, day);
+            return dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // --- 3. INPUT NOMINAL & TOMBOL CEPAT ---
+        amountInput.addEventListener('input', (e) => {
+            const rawVal = parseRawNumber(e.target.value);
+            e.target.value = rawVal > 0 ? rawVal.toLocaleString('id-ID') : '';
+        });
+
+        function addQuickAmount(nominal) {
+            const currentVal = parseRawNumber(amountInput.value);
+            const updatedVal = currentVal + nominal;
+            amountInput.value = updatedVal.toLocaleString('id-ID');
+            amountInput.focus();
+        }
+
+        // --- 4. PENYIMPANAN LOCALSTORAGE ---
+        function loadDataFromStorage() {
+            try {
+                const rawData = localStorage.getItem(STORAGE_KEY);
+                if (rawData) {
+                    const parsed = JSON.parse(rawData);
+                    if (Array.isArray(parsed)) {
+                        transactions = parsed;
+                    }
+                }
+            } catch (err) {
+                console.error('Gagal membaca data dari localStorage:', err);
+                transactions = [];
+            }
+        }
+
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+            } catch (err) {
+                console.error('Gagal menyimpan data ke localStorage:', err);
+                showToast('Gagal menyimpan data ke browser.', 'error');
+            }
+        }
+
+        // --- 5. TAMBAH & HAPUS TRANSAKSI ---
+        savingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const amount = parseRawNumber(amountInput.value);
+            const date = dateInput.value;
+            const note = noteInput.value.trim();
+
+            if (amount <= 0) {
+                showToast('Masukkan nominal setoran lebih dari Rp 0.', 'error');
+                amountInput.focus();
+                return;
+            }
+
+            if (!date) {
+                showToast('Pilih tanggal setoran terlebih dahulu.', 'error');
+                dateInput.focus();
+                return;
+            }
+
+            const newTransaction = {
+                id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
+                amount: amount,
+                date: date,
+                note: note || 'Setoran tabungan'
+            };
+
+            transactions.push(newTransaction);
+            saveDataToStorage();
+
+            // Reset input form (kecuali tanggal tetap hari ini)
+            amountInput.value = '';
+            noteInput.value = '';
+            setDefaultDateToday();
+
+            showToast(`Berhasil menabung ${formatRupiah(amount)}!`, 'success');
+            renderApp(true);
+        });
+
+        function deleteTransaction(id) {
+            const targetItem = transactions.find(t => t.id === id);
+            transactions = transactions.filter(t => t.id !== id);
+            saveDataToStorage();
+            
+            if (targetItem) {
+                showToast(`Setoran ${formatRupiah(targetItem.amount)} dihapus.`, 'info');
+            }
+            
+            // Update flag target tercapai jika turun di bawah target
+            if (calculateTotalSaved() < TARGET_AMOUNT) {
+                wasTargetReachedPreviously = false;
+            }
+            
+            renderApp(false);
+        }
+
+        // --- 6. KALKULASI & RENDER UI ---
+        function calculateTotalSaved() {
+            return transactions.reduce((sum, item) => sum + item.amount, 0);
+        }
+
+        function renderApp(isNewEntry = false) {
+            const totalSaved = calculateTotalSaved();
+            const remaining = Math.max(0, TARGET_AMOUNT - totalSaved);
+            const rawPercentage = (totalSaved / TARGET_AMOUNT) * 100;
+            const clampedPercentage = Math.min(100, rawPercentage);
+
+            // 1. Update Ringkasan Atas
+            document.getElementById('totalSavedDisplay').textContent = formatRupiah(totalSaved);
+            document.getElementById('remainingAmountDisplay').textContent = formatRupiah(remaining);
+            document.getElementById('totalDepositsCount').textContent = `Dari ${transactions.length} kali setoran`;
+
+            // Update status teks sisa target
+            const remainingStatusEl = document.getElementById('remainingStatusText');
+            if (totalSaved === 0) {
+                remainingStatusEl.textContent = 'Ayo mulai setoran pertamamu!';
+            } else if (totalSaved >= TARGET_AMOUNT) {
+                const surplus = totalSaved - TARGET_AMOUNT;
+                remainingStatusEl.textContent = surplus > 0 
+                    ? `Target terlampaui (+${formatRupiah(surplus)})` 
+                    : 'Target 100% terpenuhi!';
+            } else {
+                remainingStatusEl.textContent = `${(100 - clampedPercentage).toFixed(1)}% lagi menuju target`;
+            }
+
+            // Update Progress Bar
+            document.getElementById('percentageDisplay').textContent = `${rawPercentage.toFixed(1)}%`;
+            document.getElementById('progressBarFill').style.width = `${clampedPercentage}%`;
+
+            // 2. Cek Perayaan Target Tercapai
+            const celebrationBanner = document.getElementById('celebrationBanner');
+            if (totalSaved >= TARGET_AMOUNT) {
+                celebrationBanner.classList.remove('hidden');
+                if (isNewEntry && !wasTargetReachedPreviously) {
+                    triggerConfettiBurst();
+                }
+                wasTargetReachedPreviously = true;
+            } else {
+                celebrationBanner.classList.add('hidden');
+            }
+
+            // 3. Statistik & Estimasi Pintar
+            updateSmartStatistics(totalSaved, remaining);
+
+            // 4. Render Riwayat Transaksi
+            renderHistoryTable();
+        }
+
+        function updateSmartStatistics(totalSaved, remaining) {
+            const avgPerDayDisplay = document.getElementById('avgPerDayDisplay');
+            const estimatedDaysDisplay = document.getElementById('estimatedDaysDisplay');
+            const estimatedDateDisplay = document.getElementById('estimatedDateDisplay');
+            const highestDepositDisplay = document.getElementById('highestDepositDisplay');
+            const motivationTip = document.getElementById('motivationTip');
+
+            if (transactions.length === 0) {
+                avgPerDayDisplay.textContent = 'Rp 0';
+                estimatedDaysDisplay.textContent = 'Belum ada data';
+                estimatedDateDisplay.textContent = 'Mulai menabung untuk melihat estimasi';
+                highestDepositDisplay.textContent = 'Rp 0';
+                motivationTip.textContent = '💡 Tips: Menabung Rp 25.000 setiap hari akan mencapai Rp 1.500.000 dalam 60 hari!';
+                return;
+            }
+
+            // Hitung jumlah hari unik menabung agar rata-rata harian akurat meski sehari input 2x
+            const uniqueDates = new Set(transactions.map(t => t.date));
+            const activeDaysCount = Math.max(1, uniqueDates.size);
+            const avgPerDay = totalSaved / activeDaysCount;
+
+            // Setoran terbesar
+            const highestDeposit = Math.max(...transactions.map(t => t.amount));
+
+            avgPerDayDisplay.textContent = formatRupiah(avgPerDay);
+            highestDepositDisplay.textContent = formatRupiah(highestDeposit);
+
+            if (remaining <= 0) {
+                estimatedDaysDisplay.textContent = 'Tercapai! 🎉';
+                estimatedDateDisplay.textContent = 'Target Rp 1.500.000 sudah terpenuhi';
+                motivationTip.textContent = '🏆 Luar biasa! Kamu berhasil menuntaskan target tabunganmu.';
+            } else {
+                const daysNeeded = Math.ceil(remaining / avgPerDay);
+                estimatedDaysDisplay.textContent = `${daysNeeded} hari lagi`;
+
+                // Hitung tanggal perkiraan tercapai dari hari ini
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + daysNeeded);
+                const formattedTargetDate = targetDate.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                estimatedDateDisplay.textContent = `Estimasi sekitar ${formattedTargetDate}`;
+                motivationTip.textContent = `🚀 Pertahankan rata-rata ${formatRupiah(avgPerDay)}/hari untuk mencapai target tepat waktu!`;
+            }
+        }
+
+        function renderHistoryTable() {
+            const emptyState = document.getElementById('emptyHistoryState');
+            const tableWrapper = document.getElementById('historyTableWrapper');
+            const tableBody = document.getElementById('historyTableBody');
+            const badgeCount = document.getElementById('historyBadgeCount');
+
+            badgeCount.textContent = `${transactions.length} Transaksi`;
+
+            if (transactions.length === 0) {
+                emptyState.classList.remove('hidden');
+                tableWrapper.classList.add('hidden');
+                tableBody.innerHTML = '';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tableWrapper.classList.remove('hidden');
+
+            // Urutkan transaksi dari tanggal terbaru, lalu urutan input terbaru
+            const sortedTransactions = [...transactions].sort((a, b) => {
+                if (b.date !== a.date) {
+                    return b.date.localeCompare(a.date);
+                }
+                return b.id.localeCompare(a.id);
+            });
+
+            tableBody.innerHTML = sortedTransactions.map(item => `
+                <tr class="hover:bg-slate-50/90 dark:hover:bg-slate-800/40 transition-colors group">
+                    <td class="py-3.5 px-4 whitespace-nowrap font-medium text-slate-700 dark:text-slate-300">
+                        ${formatDateIndonesian(item.date)}
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-600 dark:text-slate-400">
+                        ${escapeHtml(item.note)}
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap text-right font-bold text-emerald-600 dark:text-emerald-400">
+                        +${formatRupiah(item.amount)}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <button 
+                            onclick="deleteTransaction('${item.id}')" 
+                            title="Hapus setoran ini"
+                            aria-label="Hapus setoran"
+                            class="p-2 rounded-lg text-slate-400 hover:text-crimson-500 hover:bg-crimson-50 dark:hover:bg-crimson-500/15 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Keamanan XSS untuk teks catatan user
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // --- 7. MODAL KONFIRMASI RESET DATA ---
+        const resetModal = document.getElementById('resetModal');
+        document.getElementById('openResetModalBtn').addEventListener('click', () => {
+            if (transactions.length === 0) {
+                showToast('Data tabungan masih kosong.', 'info');
+                return;
+            }
+            resetModal.classList.remove('hidden');
+            resetModal.classList.add('flex');
+        });
+
+        document.getElementById('cancelResetBtn').addEventListener('click', () => {
+            resetModal.classList.add('hidden');
+            resetModal.classList.remove('flex');
+        });
+
+        document.getElementById('confirmResetBtn').addEventListener('click', () => {
+            transactions = [];
+            wasTargetReachedPreviously = false;
+            saveDataToStorage();
+            renderApp(false);
+            
+            resetModal.classList.add('hidden');
+            resetModal.classList.remove('flex');
+            showToast('Semua data tabungan telah di-reset.', 'info');
+        });
+
+        // Tutup modal jika klik di luar kotak dialog
+        resetModal.addEventListener('click', (e) => {
+            if (e.target === resetModal) {
+                resetModal.classList.add('hidden');
+                resetModal.classList.remove('flex');
+            }
+        });
+
+        // --- 8. EFEK PERAYAAN KONFETI ---
+        function triggerConfettiBurst() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 90,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10B981', '#059669', '#F59E0B', '#3B82F6', '#EC4899']
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+                }, 250);
+            }
+        }
+
+        // --- 9. TOAST NOTIFICATION HELPER ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 text-white dark:bg-slate-700';
+            let icon = 'ℹ️';
+            
+            if (type === 'success') {
+                bgClass = 'bg-emerald-600 text-white';
+                icon = '✅';
+            } else if (type === 'error') {
+                bgClass = 'bg-crimson-500 text-white';
+                icon = '⚠️';
+            }
+
+            toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2.5 transform transition-all duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `<span>${icon}</span><span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+
+            // Animasi masuk
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            // Hapus otomatis setelah 3 detik
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
